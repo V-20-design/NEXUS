@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS | Systems Architecture</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/intasend-inline-js-sdk@3.0.4/build/intasend-inline.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap');
@@ -21,18 +22,26 @@
         .h-serif { font-family: serif; font-weight: 700; line-height: 1.1; }
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* KINETIC MOVING TEXT ANIMATION */
+        /* GRID BACKGROUND */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 200%; height: 200%;
+            background-image: linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1; transform: translate(-25%, -25%);
+            transition: transform 0.1s linear;
+        }
+
+        /* KINETIC MOVING TEXT */
         .moving-heading {
             position: relative;
             animation: kineticShift 5s ease-in-out infinite;
         }
-
         @keyframes kineticShift {
             0%, 100% { transform: translateX(0); text-shadow: 0 0 0px var(--primary); }
-            20% { transform: translateX(2px) skewX(1deg); text-shadow: 2px 0 10px var(--primary); }
-            40% { transform: translateX(-1px) skewX(-0.5deg); text-shadow: -2px 0 15px var(--primary); }
-            60% { transform: translateX(1px); text-shadow: 0 0 5px var(--primary); }
-            80% { transform: translateX(-2px) skewX(0.5deg); text-shadow: 1px 0 20px var(--primary); }
+            20% { transform: translateX(3px) skewX(1deg); text-shadow: 3px 0 12px var(--primary); }
+            40% { transform: translateX(-2px) skewX(-0.5deg); text-shadow: -3px 0 18px var(--primary); }
+            60% { transform: translateX(2px); text-shadow: 0 0 8px var(--primary); }
         }
 
         /* 3D SPHERICAL MOTION */
@@ -48,16 +57,16 @@
             100% { transform: rotateY(360deg) rotateX(5deg); }
         }
 
-        /* DATA TICKER */
+        /* TICKER */
         .ticker-wrap {
-            width: 100%; overflow: hidden; background: rgba(56, 189, 248, 0.05);
+            width: 100%; overflow: hidden; background: rgba(2, 6, 23, 0.9);
             border-bottom: 1px solid rgba(56, 189, 248, 0.1); padding: 8px 0;
-            position: fixed; top: 0; z-index: 100;
+            position: fixed; top: 0; z-index: 1000; backdrop-filter: blur(10px);
         }
         .ticker { display: flex; white-space: nowrap; animation: ticker 40s linear infinite; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* GLOWING RECTANGLES */
+        /* RECTANGLES */
         .glowing-frame {
             position: relative;
             background: rgba(15, 23, 42, 0.5);
@@ -70,11 +79,10 @@
         }
         .glowing-frame:hover {
             border-color: var(--primary);
-            box-shadow: 0 0 30px var(--glow);
-            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 40px var(--glow);
+            transform: translateY(-10px) scale(1.01);
         }
 
-        /* STABLE BACKGROUND */
         .hero-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
@@ -90,22 +98,21 @@
             transform: translate(-50%, -50%);
         }
 
-        /* DATA STREAM OVERLAY ON IMAGES */
         .image-container {
             border-radius: 20px; overflow: hidden; background: #000;
             border: 1px solid rgba(255,255,255,0.05); height: 520px; position: relative;
         }
         .image-container::after {
-            content: "01011010101100101011"; font-family: 'JetBrains Mono'; font-size: 10px;
+            content: "10110010101101011010"; font-family: 'JetBrains Mono'; font-size: 10px;
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            color: rgba(56, 189, 248, 0.1); writing-mode: vertical-rl;
-            padding: 10px; animation: rain 10s linear infinite; opacity: 0; transition: 0.5s;
+            color: rgba(56, 189, 248, 0.08); writing-mode: vertical-rl;
+            padding: 10px; animation: rain 12s linear infinite; opacity: 0; transition: 0.5s;
         }
         .image-container:hover::after { opacity: 1; }
         @keyframes rain { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
-        .image-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: 1.5s ease; }
-        .image-container:hover img { opacity: 0.4; transform: scale(1.1); }
+        .image-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 1.5s ease; }
+        .image-container:hover img { opacity: 0.3; transform: scale(1.1); }
 
         .reveal { opacity: 0; transform: translateY(40px); transition: 1s cubic-bezier(0.2, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
@@ -119,16 +126,87 @@
         .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* MAGNETIC ELEMENT */
         .magnetic { display: inline-block; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+
+        /* NODE HEALTH BAR */
+        .node-sidebar {
+            position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 20px; z-index: 50;
+        }
+        .health-bar { width: 2px; height: 60px; background: rgba(255,255,255,0.1); position: relative; }
+        .health-fill { position: absolute; bottom: 0; width: 100%; background: var(--primary); animation: healthFlow 4s ease-in-out infinite alternate; }
+        @keyframes healthFlow { 0% { height: 20%; } 100% { height: 90%; } }
+
+        /* DROPDOWN NAVIGATION ANIMATION */
+        .nav-dropdown {
+            opacity: 0; visibility: hidden; transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .nav-item:hover .nav-dropdown {
+            opacity: 1; visibility: visible; transform: translateY(0);
+        }
     </style>
 </head>
 <body class="antialiased">
 
     <div id="nexus-cursor"></div>
+    <div class="grid-bg" id="grid"></div>
     <div class="hero-bg"></div>
 
-    <div class="ticker-wrap mt-2">
+    <div id="login-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center bg-black/80 backdrop-blur-md px-4">
+        <div class="glowing-frame w-full max-w-md bg-[#020617]/95 border-sky-500/30">
+            <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
+                <span class="tag text-white">System_Authentication_v4</span>
+                <button onclick="toggleLoginModal()" class="text-slate-400 hover:text-sky-400 transition text-sm mono">[X]</button>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('Authentication Protocol Initiated.'); toggleLoginModal();" class="space-y-6">
+                <div>
+                    <label class="block tag mb-2">Operator_ID</label>
+                    <input type="text" placeholder="nexus_admin" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 mono text-xs text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+                <div>
+                    <label class="block tag mb-2">Passphrase_Hash</label>
+                    <input type="password" placeholder="••••••••••••" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 mono text-xs text-white focus:outline-none focus:border-sky-500 transition">
+                </div>
+                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold tracking-widest text-[10px] uppercase py-4 rounded-lg transition mono">
+                    Initialize_Root_Session
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-[1500] pointer-events-auto">
+        <button onclick="toggleChatbot()" id="chat-trigger" class="w-14 h-14 bg-sky-500 text-slate-950 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition duration-300 relative border border-sky-400/50">
+            <i class="fa-solid fa-terminal text-lg"></i>
+            <span class="absolute top-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#020617] animate-ping"></span>
+        </button>
+
+        <div id="chat-frame" class="hidden absolute bottom-20 right-0 w-80 md:w-96 glowing-frame bg-[#020617]/95 border-sky-500/30 p-4 flex flex-col h-[450px]">
+            <div class="flex justify-between items-center border-b border-white/5 pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="status-dot"></span>
+                    <span class="tag text-white">NEXUS_AI_AGENT_v1.0</span>
+                </div>
+                <button onclick="toggleChatbot()" class="text-slate-400 hover:text-sky-400 text-xs mono">[X]</button>
+            </div>
+            <div id="chat-output" class="flex-1 overflow-y-auto space-y-3 pr-2 mono text-[10px] text-slate-400">
+                <p class="text-sky-400/80">[SYSTEM]: Core Node Assistant loaded. Awaiting query sequence...</p>
+            </div>
+            <div class="mt-3 pt-3 border-t border-white/5 flex gap-2">
+                <input type="text" id="chat-input" onkeypress="if(event.key === 'Enter') sendQuery();" placeholder="Execute request..." class="flex-1 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-xs mono text-white focus:outline-none focus:border-sky-500 transition">
+                <button onclick="sendQuery()" class="bg-white/5 hover:bg-sky-500/20 border border-white/10 text-sky-400 px-3 rounded-md transition text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="node-sidebar hidden lg:flex">
+        <div class="health-bar"><div class="health-fill" style="animation-duration: 3s;"></div></div>
+        <div class="health-bar"><div class="health-fill" style="animation-duration: 5s;"></div></div>
+        <div class="health-bar"><div class="health-fill" style="animation-duration: 2s;"></div></div>
+        <span class="tag -rotate-90 origin-right translate-x-4">System_Load</span>
+    </div>
+
+    <div class="ticker-wrap">
         <div class="ticker mono text-[9px] text-sky-400 uppercase tracking-widest">
             <span>&nbsp;[ NODE_NAIROBI: ACTIVE ] — [ LATENCY: 12MS ] — [ UPTIME: 99.98% ] — [ SYSTEM_V4: SECURE ] — [ TRAFFIC: STABLE ] — [ ARCHITECTURE_CORE: ONLINE ] —&nbsp;</span>
             <span>&nbsp;[ NODE_NAIROBI: ACTIVE ] — [ LATENCY: 12MS ] — [ UPTIME: 99.98% ] — [ SYSTEM_V4: SECURE ] — [ TRAFFIC: STABLE ] — [ ARCHITECTURE_CORE: ONLINE ] —&nbsp;</span>
@@ -138,11 +216,31 @@
     <nav class="fixed top-12 w-full z-50 px-8">
         <div class="max-w-7xl mx-auto flex justify-between items-center bg-black/40 backdrop-blur-3xl border border-white/5 px-10 py-5 rounded-full">
             <div class="text-xl h-serif tracking-tighter">NEXUS<span class="text-sky-400">.</span></div>
-            <div class="hidden lg:flex gap-12 font-bold text-[10px] uppercase tracking-[0.4em] opacity-50">
-                <a href="#logic" class="hover:text-white transition">Logic_Gates</a>
-                <a href="#terminal" class="hover:text-white transition">Terminal</a>
-                <a href="#footer" class="hover:text-white transition">Root_Access</a>
+            
+            <div class="hidden lg:flex gap-12 font-bold text-[10px] uppercase tracking-[0.4em] text-slate-400">
+                <div class="nav-item relative py-2">
+                    <a href="#logic" class="hover:text-white transition inline-flex items-center gap-1">Logic_Gates <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i></a>
+                    <div class="nav-dropdown absolute top-full left-0 mt-2 w-48 bg-[#090d16] border border-white/5 rounded-xl p-4 space-y-3 shadow-2xl">
+                        <a href="#logic" class="block text-[9px] text-slate-400 hover:text-sky-400 transition tracking-widest">[01] Interface_Forge</a>
+                        <a href="#logic" class="block text-[9px] text-slate-400 hover:text-sky-400 transition tracking-widest">[02] Persistence_Gate</a>
+                    </div>
+                </div>
+                <div class="nav-item relative py-2">
+                    <a href="#terminal" class="hover:text-white transition inline-flex items-center gap-1">Terminal <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i></a>
+                    <div class="nav-dropdown absolute top-full left-0 mt-2 w-48 bg-[#090d16] border border-white/5 rounded-xl p-4 space-y-3 shadow-2xl">
+                        <a href="#terminal" class="block text-[9px] text-slate-400 hover:text-sky-400 transition tracking-widest">[>] Diagnostics</a>
+                        <a href="#terminal" class="block text-[9px] text-slate-400 hover:text-sky-400 transition tracking-widest">[>] Central_Sync</a>
+                    </div>
+                </div>
+                <div class="nav-item relative py-2">
+                    <a href="#comms" class="hover:text-white transition inline-flex items-center gap-1">Comms <i class="fa-solid fa-chevron-down text-[8px] opacity-60"></i></a>
+                    <div class="nav-dropdown absolute top-full left-0 mt-2 w-48 bg-[#090d16] border border-white/5 rounded-xl p-4 space-y-3 shadow-2xl">
+                        <a href="#comms" class="block text-[9px] text-slate-400 hover:text-sky-400 transition tracking-widest">[//] Uplink_Form</a>
+                        <button onclick="toggleLoginModal()" class="block text-[9px] text-left text-sky-400 hover:text-white transition tracking-widest w-full font-bold">[!] Secure_Login</button>
+                    </div>
+                </div>
             </div>
+
             <div class="flex items-center gap-3">
                 <span class="status-dot"></span>
                 <span class="tag">System_Stable</span>
@@ -150,7 +248,6 @@
         </div>
     </nav>
 
-    <!-- HERO -->
     <section class="min-h-screen flex flex-col items-center justify-center text-center px-6">
         <div class="main-heading-motion perspective-container mb-8">
             <h1 class="h-serif text-[8vw] leading-none text-white moving-heading">
@@ -169,7 +266,47 @@
         </div>
     </section>
 
-    <!-- LOGIC MODULES -->
+    <section id="products" class="py-20 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <span class="tag text-sky-400">Services_Deployment_Catalog</span>
+            <h2 class="h-serif text-4xl mt-2 text-white">Acquire Core Allocations</h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div class="glowing-frame flex flex-col justify-between h-full reveal">
+                <div>
+                    <div class="flex justify-between items-start border-b border-white/5 pb-4 mb-6">
+                        <span class="tag text-white">[ ALLOCATION_NODE_01 ]</span>
+                        <span class="mono text-sky-400 font-bold text-lg">KES 1,500</span>
+                    </div>
+                    <h3 class="h-serif text-2xl text-white mb-4">Interface Forge Tier</h3>
+                    <p class="text-slate-400 text-sm font-light leading-relaxed mb-6">
+                        Grants entry-level infrastructure allocation. Real-time diagnostic hooks, high-concurrency state containers, and secure baseline routing metrics.
+                    </p>
+                </div>
+                <button id="pay-btn-01" class="w-full bg-white/5 hover:bg-sky-500 hover:text-slate-950 border border-white/10 text-sky-400 font-bold tracking-widest text-[10px] uppercase py-4 rounded-lg transition duration-300 mono mt-6">
+                    Initialize Purchase Sequence
+                </button>
+            </div>
+
+            <div class="glowing-frame flex flex-col justify-between h-full reveal">
+                <div>
+                    <div class="flex justify-between items-start border-b border-white/5 pb-4 mb-6">
+                        <span class="tag text-white">[ ALLOCATION_NODE_02 ]</span>
+                        <span class="mono text-sky-400 font-bold text-lg">KES 4,500</span>
+                    </div>
+                    <h3 class="h-serif text-2xl text-white mb-4">Persistence Gate Tier</h3>
+                    <p class="text-slate-400 text-sm font-light leading-relaxed mb-6">
+                        Advanced geo-distributed storage architecture. Encrypted transactional state protocols, ACID-compliant ledger protection schemas, and direct node monitoring.
+                    </p>
+                </div>
+                <button id="pay-btn-02" class="w-full bg-white/5 hover:bg-sky-500 hover:text-slate-950 border border-white/10 text-sky-400 font-bold tracking-widest text-[10px] uppercase py-4 rounded-lg transition duration-300 mono mt-6">
+                    Initialize Purchase Sequence
+                </button>
+            </div>
+        </div>
+    </section>
+
     <section id="logic" class="py-40 px-6 max-w-7xl mx-auto space-y-72">
         <div class="grid lg:grid-cols-2 gap-24 items-center reveal">
             <div class="image-container">
@@ -223,7 +360,6 @@
         </div>
     </section>
 
-    <!-- SYSTEM TERMINAL -->
     <section id="terminal" class="py-20 px-6 max-w-5xl mx-auto">
         <div class="glowing-frame bg-black/80 border-sky-500/20 reveal">
             <div class="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
@@ -245,7 +381,34 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
+    <section id="comms" class="py-32 px-6 max-w-3xl mx-auto">
+        <div class="glowing-frame reveal">
+            <span class="tag">System_Uplink // External_Comms</span>
+            <h2 class="h-serif text-4xl mt-4 mb-2 text-white">Establish Connection</h2>
+            <p class="text-slate-400 text-xs font-light mb-8 mono">Transmit requirements directly to the Nairobi Operational Hub.</p>
+            
+            <form action="https://formspree.io/f/your-id-here" method="POST" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block tag mb-2">Sender_Identity</label>
+                        <input type="text" name="name" required placeholder="John Doe" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 mono text-xs text-white focus:outline-none focus:border-sky-500 transition">
+                    </div>
+                    <div>
+                        <label class="block tag mb-2">Return_Routing_Email</label>
+                        <input type="email" name="email" required placeholder="operator@domain.com" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 mono text-xs text-white focus:outline-none focus:border-sky-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="block tag mb-2">Data_Payload (Message)</label>
+                    <textarea name="message" rows="5" required placeholder="Type transmission sequence here..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 mono text-xs text-white focus:outline-none focus:border-sky-500 transition"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-white/5 hover:bg-sky-500 hover:text-slate-950 border border-white/10 text-sky-400 font-bold tracking-widest text-[10px] uppercase py-4 rounded-lg transition duration-300 mono">
+                    Broadcast_Transmission_Signal
+                </button>
+            </form>
+        </div>
+    </section>
+
     <footer id="footer" class="pt-40 pb-16 bg-black/80 border-t border-sky-500/10">
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid lg:grid-cols-4 gap-16 mb-24">
@@ -286,9 +449,15 @@
 
     <script>
         const cursor = document.getElementById('nexus-cursor');
+        const grid = document.getElementById('grid');
+
         window.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
+
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.05;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.05;
+            grid.style.transform = `translate(calc(-25% + ${moveX}px), calc(-25% + ${moveY}px))`;
         });
 
         const observer = new IntersectionObserver((entries) => {
@@ -298,7 +467,7 @@
         }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        // Magnetic Effect Script
+        // Magnetic Modules
         document.querySelectorAll('.magnetic').forEach(el => {
             el.addEventListener('mousemove', (e) => {
                 const rect = el.getBoundingClientRect();
@@ -311,7 +480,8 @@
             });
         });
 
-        document.querySelectorAll('a, .glowing-frame, .image-container').forEach(el => {
+        // Hover Tracking Dynamics
+        document.querySelectorAll('a, button, input, textarea, .glowing-frame, .image-container').forEach(el => {
             el.addEventListener('mouseenter', () => {
                 cursor.style.transform = 'translate(-50%, -50%) scale(6)';
                 cursor.style.background = '#38bdf8';
@@ -322,6 +492,88 @@
                 cursor.style.background = 'white';
                 cursor.style.opacity = '1';
             });
+        });
+
+        // Toggle Login Window
+        function toggleLoginModal() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Toggle Chat Module Frame
+        function toggleChatbot() {
+            const frame = document.getElementById('chat-frame');
+            frame.classList.toggle('hidden');
+        }
+
+        // Processing Logic for Chatbot UI
+        function sendQuery() {
+            const inputEl = document.getElementById('chat-input');
+            const outputEl = document.getElementById('chat-output');
+            const query = inputEl.value.trim();
+            
+            if (!query) return;
+
+            outputEl.innerHTML += `<p class="text-white mt-2"><span class="text-emerald-500">guest@nexus:~$</span> ${query}</p>`;
+            inputEl.value = '';
+
+            setTimeout(() => {
+                let response = "[AGENT]: System configuration matches baseline validation paradigms.";
+                if (query.toLowerCase().includes('status') || query.toLowerCase().includes('nairobi')) {
+                    response = "[AGENT]: Node_Nairobi structural integrity nominal. Operational bandwidth fully allocated.";
+                } else if (query.toLowerCase().includes('hello') || query.toLowerCase().includes('hi')) {
+                    response = "[AGENT]: Connection secured. State your specific optimization criteria.";
+                }
+                outputEl.innerHTML += `<p class="text-sky-400 mt-1">${response}</p>`;
+                outputEl.scrollTop = outputEl.scrollHeight;
+            }, 600);
+        }
+
+        /**
+         * SECURE INTASEND PAYMENTS GATEWAY CONFIGURATION
+         * Automatically binds checkout processes directly to Intasend UI overlays
+         */
+        const intasendInstance = new IntaSend({
+            // REPLACE THIS KEY WITH YOUR INTASEND PUBLIC API KEY
+            // Sandbox looks like: ISPubKey_test_...
+            // Production looks like: ISPubKey_live_...
+            publicAPIKey: "ISPubKey_test_635677ba-7ea4-4861-bbdf-8064bdbe85cc",
+            live: false // Set to true when moving out of sandbox to accept real money
+        });
+
+        // Setup event listener tracking states for Service Tier 01
+        document.getElementById('pay-btn-01').addEventListener('click', () => {
+            intasendInstance.buttons.attach({
+                amount: 1500,
+                currency: "KES",
+                title: "Interface Forge Tier",
+                comment: "NEXUS Core Allocation Node-01",
+                phone_number: "254700000000",
+                email: "client@nexus-foundry.io"
+            });
+        });
+
+        // Setup event listener tracking states for Service Tier 02
+        document.getElementById('pay-btn-02').addEventListener('click', () => {
+            intasendInstance.buttons.attach({
+                amount: 4500,
+                currency: "KES",
+                title: "Persistence Gate Tier",
+                comment: "NEXUS Core Allocation Node-02",
+                phone_number: "254700000000",
+                email: "client@nexus-foundry.io"
+            });
+        });
+
+        // Safe operational transactional lifecycle tracking
+        intasendInstance.on("COMPLETE", (results) => {
+            console.log("Transaction sequence finalized:", results);
+            alert(`[TRANSMISSION SUCCESSFUL]\nM-PESA/Card node allocation authenticated.\nTracking ID: ${results.invoice_id}`);
+        });
+
+        intasendInstance.on("FAILED", (results) => {
+            console.warn("Transaction state failed baseline telemetry check:", results);
+            alert("[TRANSMISSION REJECTED]: Transaction signature verification failed.");
         });
     </script>
 </body>
